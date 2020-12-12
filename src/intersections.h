@@ -270,8 +270,8 @@ __host__ __device__ float tanglecubeIntersectionTest(Geom tanglecube, Ray r,
 
 __host__ __device__ float computeBoundBoxSDF(glm::vec3& currPos) {
     glm::vec3 p = currPos;
-    glm::vec3 b(1.f, 1.f, 1.f);
-    float e = 0.1f;
+    glm::vec3 b(2.f, 2.f, 2.f);
+    float e = 0.2f;
     p = glm::abs(p) - b;
     glm::vec3 q = glm::abs(p + e) - e;
     return glm::min(glm::min(glm::length(glm::max(glm::vec3(p.x, q.y, q.z), 0.f)) + glm::min(glm::max(p.x, glm::max(q.y, q.z)), 0.f),
