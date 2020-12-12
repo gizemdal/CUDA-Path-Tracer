@@ -47,17 +47,18 @@ EMITTANCE   0
 TEXTURE     0
 
 
-// Diffuse blue
+// FBM
 MATERIAL 4
 TYPE       DIFFUSE
 RGB        0.55 0.56 0.86
 SPECEX     0
-SPECRGB    0 0 0
+SPECRGB    0.55 0.56 0.86
 REFL       0
 RERF       0
 REFRIOR    0
 EMITTANCE  0
-TEXTURE     0
+TEXTURE     1
+noise
 
 // Camera
 CAMERA
@@ -122,8 +123,8 @@ SCALE       .01 10 10
 
 // Bounding box
 OBJECT 6
-bound box
+sphere
 material 4
-TRANS       0 4.2 0
-ROTAT       45 45 0
-SCALE       1 1 1
+TRANS       0 4 0
+ROTAT       0 0 0
+SCALE       5 5 5
