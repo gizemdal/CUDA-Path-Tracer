@@ -97,7 +97,11 @@ Ray-geometry intersection for implicit surfaces is computed by special signed di
 
 I closely followed the procedural texture implementations from the link provided on top of the render images. I find the *Book of Shaders* noise texture implementations to be pretty useful for generating aesthetically pleasing procedural textures from fragment data. The two procedural textures currently supported by the renderer include Fractal Brownian Motion texture which benefits from a loop of adding noise to create a fractal looking noise pattern, and Wood Noise with a swirl effect.
 
-*Note: The procedural textures work the best with round geometry such as spheres.*
+*Note: The procedural textures work the best with round geometry such as spheres, round arbitary meshes, tanglecube, etc.*
+
+FBM Tanglecube | Noise Duck
+:---: | :---:
+<img src="img/renders/tanglecube_tex.png" alt="fbm" width=500> | <img src="img/renders/duck_tex.png" alt="noise" width=500>
 
 **Stratified Sampling**
 
