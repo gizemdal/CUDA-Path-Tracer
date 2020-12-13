@@ -87,6 +87,8 @@ Tanglecube | Bounding Box
 
 Ray-geometry intersection for implicit surfaces is computed by special signed distance functions and ray marching. The sign of the SDF return value determines whether the ray is outside, on or inside the implicit geometry. Ray marching is used for following the ray direction in small increments, passing the current position on the ray to the SDF function and deciding whether an intersection occured or the marching should be terminated if the maximum marching distance is reached.
 
+*Note: For the best render results, the bound box should have the scale value of 1 for all scale components.*
+
 **Procedural Textures**
 
 [FBM](https://thebookofshaders.com/13/) | [Noise](https://thebookofshaders.com/edit.php#11/wood.frag)
@@ -94,6 +96,8 @@ Ray-geometry intersection for implicit surfaces is computed by special signed di
 <img src="img/renders/fb_tex.png" alt="fbm" width=500> | <img src="img/renders/noise_tex.png" alt="noise" width=500>
 
 I closely followed the procedural texture implementations from the link provided on top of the render images. I find the *Book of Shaders* noise texture implementations to be pretty useful for generating aesthetically pleasing procedural textures from fragment data. The two procedural textures currently supported by the renderer include Fractal Brownian Motion texture which benefits from a loop of adding noise to create a fractal looking noise pattern, and Wood Noise with a swirl effect.
+
+*Note: The procedural textures work the best with round geometry such as spheres.*
 
 **Stratified Sampling**
 
