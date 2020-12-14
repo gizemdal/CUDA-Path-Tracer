@@ -85,7 +85,7 @@ Tanglecube | Bounding Box
 :---: | :---:
 <img src="img/renders/tanglecube_500.png" alt="tanglecube" width=500> | <img src="img/renders/bound_box_500.png" alt="bounding box" width=500>
 
-Ray-geometry intersection for implicit surfaces is computed by special signed distance functions and ray marching. The sign of the SDF return value determines whether the ray is outside, on or inside the implicit geometry. Ray marching is used for following the ray direction in small increments, passing the current position on the ray to the SDF function and deciding whether an intersection occured or the marching should be terminated if the maximum marching distance is reached. These implicit surfaces can be combined with specular BSDFs such as mirror or perfect refractive material, although they don't work with fresnel dielectric BSDF.
+Ray-geometry intersection for implicit surfaces is computed by special signed distance functions and ray marching. The sign of the SDF return value determines whether the ray is outside, on or inside the implicit geometry. Ray marching is used for following the ray direction in small increments, passing the current position on the ray to the SDF function and deciding whether an intersection occured or the marching should be terminated if the maximum marching distance is reached. These implicit surfaces can be combined with specular BSDFs such as mirror or fresnel dielectric material.
 
 Mirror Tanglecube | Glass Bounding Box
 :---: | :---:
