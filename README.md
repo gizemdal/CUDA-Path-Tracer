@@ -1,36 +1,24 @@
 CUDA Path Tracer
 ================
 
-**University of Pennsylvania, CIS 565: GPU Programming and Architecture, Project 3**
-
-* Name: Gizem Dal
-  * [LinkedIn](https://www.linkedin.com/in/gizemdal), [personal website](https://www.gizemdal.com/)
-* Tested on: Predator G3-571 Intel(R) Core(TM) i7-7700HQ CPU @ 2.80 GHz 2.81 GHz - Personal computer
-
 <img src="img/readme_labeled.png" alt="sneak peek" width=550>
+
+* **Name:** Gizem Dal
+  * [LinkedIn](https://www.linkedin.com/in/gizemdal), [personal website](https://www.gizemdal.com/)
 
 ## Project Description ##
 
 This is a CUDA-based path tracer capable of rendering globally-illuminated images very quickly with the power of parallelization. Check out the [CUDA Denoiser](https://github.com/gizemdal/Project4-CUDA-Denoiser) project to see how the denoising approach discussed in the [Edge-Avoiding A-Trous Wavelet Transform for fast Global Illumination Filtering](https://jo.dreggn.org/home/2010_atrous.pdf) paper by Dammertz, Sewtz, Hanika, and Lensch is implemented for a CUDA path tracer.
 
-**Features**
+#### Table of Contents  
 
-* Shading Kernel with BSDF Evaluation
-  * Uniform diffuse
-  * Perfect specular reflective (mirror)
-  * Perfect specular refractive
-  * Fresnel dielectric
-  * Imperfect specular (glossy)
-* Path Continuation/Termination with Stream Compaction
-* Toggleable continuous storage of paths and intersections by material type
-* Toggleable first bounce intersection cache to be used by subsequent iterations
-* Anti-aliasing rays with sub-pixel samples
-* Arbitrary GLTF mesh loading with toggleable bounding volume intersection culling
-* Camera depth of field
-* SDF-based Tanglecube and Bounding Box
-* Procedural texture
-* Stratified sampling
-* Hierarchical Spatial Structure - Octree (In progress)
+[Material Overview](#overview-material)  
+[Features Overview](#overview-features)   
+[Insights](#insights)   
+[Performance Analysis](#performance)   
+[Bloopers](#bloopers)  
+
+<a name="overview-material"/> 
 
 ## Material Overview ##
 
@@ -49,6 +37,8 @@ Exponent = 0 | Exponent = 5 | Exponent = 12 | Exponent = 50 | Exponent = 500
 <img src="img/renders/glossy_0.png" alt="Glossy 0" width=200> | <img src="img/renders/glossy_5.png" alt="Glossy 5" width=200> | <img src="img/renders/glossy_12.png" alt="Glossy 12" width=200> | <img src="img/renders/glossy_50.png" alt="Glossy 50" width=200> | <img src="img/renders/glossy_500.png" alt="Glossy 500" width=200>
 
 Lower specular exponent values give results that are closer to diffuse scattering while larger specular exponent values result in larger highlights and more mirror-like surfaces.
+
+<a name="overview-features"/> 
 
 ## Features Overview ##
 
@@ -123,6 +113,8 @@ Although it isn't very visible at larger sample sizes, using stratified samples 
 
 I started implementing a hierarchical spatial structure named Octree. The purpose of this data structure is to contain the scene geometry within children nodes (at most 8 children nodes per node) by using 3D volume bounding boxes with the goal of eliminating naive geometry iteration in the ray-scene intersection test, thus improve the rendering performance. Due to time constraints, this feature is not completed yet though it is still in the works.
 
+<a name="insights"/> 
+
 ## Insights ##
 
 One interesting observation I have is that using material sort results in more stable render results compared to naive approach. The two images below, both rendered with 4950 iterations, are renders from the same camera position. The render on the left is taken by sorting rays by material type while the one on the right is rendered by the naive approach.
@@ -131,7 +123,11 @@ Material sort enabled | Material sort disabled
 :---: | :---: |
 <img src="img/readme.png" alt="anti-aliasing enabled" width=300> | <img src="img/readme_nosort.png" alt="anti-aliasing disabled" width=300>
 
+<a name="performance"/> 
+
 ## Performance Analysis ##
+
+The performance is measured on a **Predator G3-571 Intel(R) Core(TM) i7-7700HQ CPU @ 2.80 GHz 2.81 GHz** machine.
 
 I used a GPU timer to conduct my performance analysis on different features and settings in the renderer. This timer is wrapped up as a performance timer class, which uses the CUDAEvent library, in order to measure the time cost conveniently. The timer is started right before the iteration loop and is terminated once a certain number of iterations is reached. The measured time excludes the initial cudaMalloc() and cudaMemset() operations for the path tracer buffers, but still includes the cudaGLMapBuffer operations.
 
@@ -194,6 +190,8 @@ Current procedural textures supported by the renderer make many calls to noise h
 <img src="img/texture_graph.png" alt="Texture graph" width=900>
 
 Although the difference is not very significant due to the small number of iterations, using the FBM texture seems to be slightly less efficient than using Wood Noise or no texture at all. Since FBM functions usually call their helpers the octave amount of times, it is possible that these subsequent function calls could slow down the performance.
+
+<a name="bloopers"/> 
 
 ## Bloopers ##
 
