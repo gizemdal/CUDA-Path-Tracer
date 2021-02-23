@@ -157,7 +157,7 @@ void runCuda() {
 
     if (iteration == 0) {
         pathtraceFree(useOctree);
-        pathtraceInit(scene, useOctree, 2 , 3, renderState->iterations);
+        pathtraceInit(scene, useOctree, 5 , 20, renderState->iterations);
         //timer().startGpuTimer();
     }
 

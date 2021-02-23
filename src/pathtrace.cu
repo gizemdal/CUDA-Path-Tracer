@@ -349,7 +349,7 @@ void setupOctree() {
         std::cout << "DownFarRight: " << root.downFarRight << std::endl;
         std::cout << "DownNearLeft: " << root.downNearLeft << std::endl;
         std::cout << "DownNearRight: " << root.downNearRight << std::endl;*/
-        for (int i = 0; i < hst_octnodes.size(); ++i) {
+        /*for (int i = 0; i < hst_octnodes.size(); ++i) {
             std::cout << "-----------------" << std::endl;
             std::cout << "Node: " << hst_octnodes[i].id << ", " << hst_octnodes[i].numGeoms << " geoms" << std::endl;
             std::cout << "Geom starts at: " << hst_octnodes[i].geomStartIdx << std::endl;
@@ -361,7 +361,7 @@ void setupOctree() {
         std::cout << "Geom indices" << std::endl;
         for (int i = 0; i < hst_octnode_geom_indices.size(); ++i) {
             std::cout << i << ": " << hst_octnode_geom_indices[i] << std::endl;
-        }
+        }*/
     }
     else {
         // Do not use octree
@@ -692,6 +692,7 @@ __global__ void computeOctreeIntersections(
     , ShadeableIntersection* intersections
     , OctNode* octreeNodes
     , Geom* geoms
+    , Geom* triangles
     , int* geomIndices
     , int treeDepth
     , int* node_queue
@@ -746,9 +747,30 @@ __global__ void computeOctreeIntersections(
                     {
                         t = sphereIntersectionTest(geom, pathSegment.ray, tmp_intersect, tmp_normal, outside);
                     }
-                    else if (geom.type == TRIANGLE)
+                    else if (geom.type == MESH)
                     {
-                        t = triangleIntersectionTest(geom, pathSegment.ray, tmp_intersect, tmp_normal, outside);
+                        // check if ray would intersect this mesh
+                        float xdir = pathSegment.ray.direction.x;
+                        float ydir = pathSegment.ray.direction.y;
+
+                        // Find set of geometry to test against from octree
+                        float invDir_x = xdir != 0 ? 1.f / xdir : 0.f;
+                        float invDir_y = ydir != 0 ? 1.f / ydir : 0.f;
+                        float invDir_z = pathSegment.ray.direction.z != 0 ? 1.f / pathSegment.ray.direction.z : 0.f;
+                        glm::vec3 invDir(invDir_x, invDir_y, invDir_z);
+                        if (MeshBoundsTest(geom, pathSegment.ray, invDir)) {
+                            // check for intersection against each triangle
+                            for (int k = geom.triangleStart; k < geom.numTriangles + geom.triangleStart; ++k) {
+                                t = triangleIntersectionTest(triangles[k], pathSegment.ray, tmp_intersect, tmp_normal, outside);
+                                if (t > 0.0f && t_min > t)
+                                {
+                                    t_min = t;
+                                    hit_geom_index = geomIndices[start + j];
+                                    intersect_point = tmp_intersect;
+                                    normal = tmp_normal;
+                                }
+                            }
+                        }
                     }
 
                     if (t > 0.0f && t_min > t)
@@ -1020,6 +1042,7 @@ void pathtrace(uchar4 *pbo, int frame, int iter, bool cacheFirstBounce, bool sor
                     , dev_intersections
                     , dev_octnodes
                     , dev_geoms
+                    , dev_triangles
                     , dev_octnode_geoms
                     , octreeDepth
                     , dev_octnode_queues
@@ -1053,6 +1076,7 @@ void pathtrace(uchar4 *pbo, int frame, int iter, bool cacheFirstBounce, bool sor
                 , dev_intersections
                 , dev_octnodes
                 , dev_geoms
+                , dev_triangles
                 , dev_octnode_geoms
                 , octreeDepth
                 , dev_octnode_queues
