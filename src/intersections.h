@@ -245,7 +245,7 @@ __host__ __device__ float tanglecubeIntersectionTest(Geom tanglecube, Ray r,
         glm::vec3 localPos = multiplyMV(tanglecube.inverseTransform, glm::vec4(currPos, 1.f));
         float d = computeTanglecubeSDF(localPos);
         d *= glm::min(glm::min(tanglecube.scale.x, tanglecube.scale.y), tanglecube.scale.z);
-        t = t + (glm::min(0.05f, d));
+        t = t + (glm::min(0.01f, d));
         if (d < THRESHOLD) {
             intersected = true;
             // compute normal
@@ -307,7 +307,7 @@ __host__ __device__ float boundBoxIntersectionTest(Geom boundBox, Ray r,
         glm::vec3 localPos = multiplyMV(boundBox.inverseTransform, glm::vec4(currPos, 1.f));
         float d = computeBoundBoxSDF(localPos);
         d *= glm::min(glm::min(boundBox.scale.x, boundBox.scale.y), boundBox.scale.z);
-        t = t + d;
+        t = t + (glm::min(0.05f, d));
         if (d < THRESHOLD) {
             intersected = true;
             // compute normal
