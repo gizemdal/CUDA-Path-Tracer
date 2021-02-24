@@ -170,19 +170,6 @@ I measured the total runtime of 6 iterations in 1 test scene per mesh. I used si
 
 Using volume intersection culling for simpler arbitrary meshes such as Icosahedron or Dodecahedron doesn't provide a significant performance improvement for a small number of iterations, however as the total number of iterations increases it can provide more significant efficiency. Although we do not observe a significant performance improvement with Icosahedron, we can see that using volume intersection culling improves scene intersection test performance significantly for scenes where much more complex shapes such as Stanford Bunny is present. Just with 6 iterations, using volume intersection culling has saved about 29 seconds.
 
-**First Bounce Cache with SDF-based Implicit Surfaces**
-
-Although simple scenes may not benefit from using the first bounce cache for subsequent iterations, scenes with SDF-based implicit surfaces where each path segment is ray marched against the procedural surface for intersection test benefit from the first bounce cache significantly. I have tested the impact of first bounce cache on two implicit surfaces currently supported by the renderer, Tanglecube and 3D Bounding Box, to compare the renderer performance against no usage of cache. This test involves only two iterations, where the first bounce from iteration 1 is stored to be used in iteration 2. For simplicity, the maximum ray marching distance is set to 20 units for both shapes. I picked the ray march steps per shape based on the observed results from different step sizes.
-
-Shape | Ray march step
-:---: | :---: 
-Tanglecube | 0.0001
-Bounding Box | 0.001
-
-<img src="img/cache_graph.png" alt="First Bounce Cache graph" width=900>
-
-As shown in the graph, using a first bounce cache improves the performance of each iteration significantly by 1-2 seconds depending on the shape and ray march step. The current ray marching implementation does not use sphere marching, however it could be a performance improvement to consider in the future. Another potential performance improvement could come from defining bounding boxes for implicit surfaces such that the ray will be tested against the surface only if it falls within the bounds. This could be achieved by the octree implementation.
-
 **Procedural Textures**
 
 Current procedural textures supported by the renderer make many calls to noise helper functions that call many glm math functions. In order to analyze the potential impacts of procedural textures on runtime, I created 3 simple test scenes with a sphere where the diffuse material of the sphere uses FBM, Wood noise and no texture separately and compared the total runtimes of 100 and 500 iterations.
