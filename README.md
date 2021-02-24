@@ -11,7 +11,7 @@ CUDA Path Tracer
 
 This is a CUDA-based path tracer capable of rendering globally-illuminated images very quickly with the power of parallelization. Check out the [CUDA Denoiser](https://github.com/gizemdal/Project4-CUDA-Denoiser) project to see how the denoising approach discussed in the [Edge-Avoiding A-Trous Wavelet Transform for fast Global Illumination Filtering](https://jo.dreggn.org/home/2010_atrous.pdf) paper by Dammertz, Sewtz, Hanika, and Lensch is implemented for a CUDA path tracer.
 
-![labels](img/readme_labels.png)
+<img src="img/readme_labels.png" alt="Labeled Overview" width=500>
 
 #### Table of Contents  
 
