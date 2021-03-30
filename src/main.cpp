@@ -4,6 +4,10 @@
 #include <iostream>
 #include "common.h"
 
+#include "../imgui/imgui.h"
+#include "../imgui/imgui_impl_glfw.h"
+#include "../imgui/imgui_impl_opengl3.h"
+
 
 using StreamCompaction::Common::PerformanceTimer;
 PerformanceTimer& timer()
@@ -13,6 +17,23 @@ PerformanceTimer& timer()
 }
 
 static std::string startTimeString;
+
+// Denoiser controls
+int ui_iterations = 0;
+int startupIterations = 0;
+int lastLoopIterations = 0;
+bool ui_showGbuffer = false;
+bool ui_denoise = false;
+int ui_filterSize = 5;
+int prev_ui_filterSize = ui_filterSize;
+int ui_blurSize = 80;
+float ui_colorWeight = 11.789f;
+float ui_normalWeight = 0.610f;
+float ui_positionWeight = 0.407f;
+bool ui_saveAndExit = false;
+int cur_gbuffer = 0;
+bool denoise_computed = false;
+int denoised_iteration = 0;
 
 // For camera controls
 static bool leftMousePressed = false;
@@ -67,6 +88,9 @@ int main(int argc, char** argv) {
     width = cam.resolution.x;
     height = cam.resolution.y;
 
+    ui_iterations = renderState->iterations;
+    startupIterations = ui_iterations;
+
     glm::vec3 view = cam.view;
     glm::vec3 up = cam.up;
     glm::vec3 right = glm::cross(view, up);
@@ -97,25 +121,48 @@ void saveImage() {
     // output image file
     image img(width, height);
 
-    for (int x = 0; x < width; x++) {
-        for (int y = 0; y < height; y++) {
-            int index = x + (y * width);
-            glm::vec3 pix = renderState->image[index];
-            img.setPixel(width - 1 - x, y, glm::vec3(pix) / samples);
+    if (ui_denoise) {
+        std::vector<glm::vec3> denoised = getDenoisedImage();
+        samples = denoised_iteration;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                int index = x + (y * width);
+                glm::vec3 pix = denoised[index];
+                img.setPixel(width - 1 - x, y, glm::vec3(pix) / samples);
+            }
         }
+
+        std::string filename = renderState->imageName;
+        std::ostringstream ss;
+        ss << filename << "." << startTimeString << "." << samples << "samp.denoised";
+        filename = ss.str();
+        img.savePNG(filename);
     }
+    else {
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                int index = x + (y * width);
+                glm::vec3 pix = renderState->image[index];
+                img.setPixel(width - 1 - x, y, glm::vec3(pix) / samples);
+            }
+        }
 
-    std::string filename = renderState->imageName;
-    std::ostringstream ss;
-    ss << filename << "." << startTimeString << "." << samples << "samp";
-    filename = ss.str();
+        std::string filename = renderState->imageName;
+        std::ostringstream ss;
+        ss << filename << "." << startTimeString << "." << samples << "samp";
+        filename = ss.str();
 
-    // CHECKITOUT
-    img.savePNG(filename);
-    //img.saveHDR(filename);  // Save a Radiance HDR file
+        // CHECKITOUT
+        img.savePNG(filename);
+        //img.saveHDR(filename);  // Save a Radiance HDR file
+    }
 }
 
 void runCuda() {
+    if (lastLoopIterations != ui_iterations) {
+        lastLoopIterations = ui_iterations;
+        camchanged = true;
+    }
     if (camchanged) {
         iteration = 0;
         Camera &cam = renderState->camera;
@@ -158,29 +205,76 @@ void runCuda() {
     if (iteration == 0) {
         pathtraceFree(useOctree);
         pathtraceInit(scene, useOctree, 5 , 20, renderState->iterations);
+        filterFree();
+        filterInit(ui_filterSize);
         //timer().startGpuTimer();
     }
 
-    if (iteration < renderState->iterations) {
-        uchar4 *pbo_dptr = NULL;
+    uchar4* pbo_dptr = NULL;
+    cudaGLMapBufferObject((void**)&pbo_dptr, pbo);
+
+    if (iteration < ui_iterations) {
         iteration++;
-        cudaGLMapBufferObject((void**)&pbo_dptr, pbo);
 
         // execute the kernel
         int frame = 0;
         pathtrace(pbo_dptr, frame, iteration, cacheFirstBounce, sortByMaterial, useMeshBounds);
-
-        // unmap buffer object
-        cudaGLUnmapBufferObject(pbo);
 
         /*if (iteration == 1) {
             timer().endGpuTimer();
             std::cout << timer().getGpuElapsedTimeForPreviousOperation() << std::endl;
         }*/
 
-    } else {
+    }
+    if (ui_showGbuffer) {
+        showGBuffer(pbo_dptr, cur_gbuffer);
+    }
+    else {
+        showImage(pbo_dptr, iteration, denoise_computed);
+    }
+
+    // Set limit for ui_filterSize
+    if (ui_filterSize < 1) ui_filterSize = 1;
+    if (ui_filterSize > 49) ui_filterSize = 49;
+
+    if (prev_ui_filterSize != ui_filterSize) {
+        filterFree();
+        filterInit(ui_filterSize);
+        prev_ui_filterSize = ui_filterSize;
+    }
+
+    // compute denoised image
+    if (ui_denoise) {
+        if (!denoise_computed) {
+            timer().startGpuTimer();
+            // compute denoised image from current buffers
+            // use blur width to determine number of denoise iterations
+            int denoise_iter = 0;
+            int max_width = ui_filterSize; // replace this later with a variable
+            while (max_width <= ui_blurSize) {
+                denoise_iter++;
+                max_width += (int)glm::pow(2, denoise_iter + 1);
+            }
+            // denoise the image
+            denoiseImage(denoise_iter, ui_colorWeight, ui_normalWeight, ui_positionWeight);
+            denoise_computed = true;
+            denoised_iteration = iteration;
+            timer().endGpuTimer();
+            std::cout << timer().getGpuElapsedTimeForPreviousOperation() << std::endl;
+        }
+    }
+    else {
+        // set denoise_computed back to false
+        if (denoise_computed) denoise_computed = false;
+    }
+
+    // unmap buffer object
+    cudaGLUnmapBufferObject(pbo);
+
+    if (ui_saveAndExit) {
         saveImage();
         pathtraceFree(useOctree);
+        filterFree();
         cudaDeviceReset();
         exit(EXIT_SUCCESS);
     }
@@ -196,6 +290,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
       case GLFW_KEY_S:
         saveImage();
         break;
+      case GLFW_KEY_UP:
+          // change buffer mode
+          cur_gbuffer = cur_gbuffer + 1 >= END ? 0 : cur_gbuffer + 1;
+          break;
       case GLFW_KEY_C:
           // cache first bounce
           cacheFirstBounce = !cacheFirstBounce;
@@ -225,6 +323,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+  if (ImGui::GetIO().WantCaptureMouse) return;
   leftMousePressed = (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS);
   rightMousePressed = (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS);
   middleMousePressed = (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS);

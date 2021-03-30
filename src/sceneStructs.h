@@ -16,6 +16,14 @@ enum GeomType {
     BOUND_BOX,
 };
 
+enum GBufferType {
+    POS,
+    NORM,
+    T,
+    COLOR,
+    END, // type end indicator
+};
+
 enum MaterialType {
     DIFFUSE,
     MIRROR,
@@ -114,6 +122,16 @@ struct ShadeableIntersection {
   glm::vec3 surfaceNormal;
   int materialId;
 };
+
+// CHECKITOUT - a simple struct for storing scene geometry information per-pixel.
+// What information might be helpful for guiding a denoising filter?
+struct GBufferPixel {
+    float t;
+    glm::vec3 pos;
+    glm::vec3 nor;
+    glm::vec3 color; // path segment color
+};
+
 
 // Hierarchical spatial datastructe: Octree
 struct OctNode {

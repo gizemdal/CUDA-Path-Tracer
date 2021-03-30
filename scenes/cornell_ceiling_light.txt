@@ -1,0 +1,172 @@
+// Emissive material (light)
+MATERIAL 0
+TYPE	    EMISSIVE
+RGB         1 1 1
+SPECEX      0
+SPECRGB     0 0 0
+REFRIOR     0
+EMITTANCE   1
+TEXTURE     0
+
+// Diffuse white
+MATERIAL 1
+TYPE	    DIFFUSE
+RGB         .98 .98 .98
+SPECEX      0
+SPECRGB     0 0 0
+REFRIOR     0
+EMITTANCE   0
+TEXTURE     0
+
+// Diffuse red
+MATERIAL 2
+TYPE	    DIFFUSE
+RGB         .85 .35 .35
+SPECEX      0
+SPECRGB     0 0 0
+REFRIOR     0
+EMITTANCE   0
+TEXTURE     0
+
+// Diffuse green
+MATERIAL 3
+TYPE	    DIFFUSE
+RGB         .35 .85 .35
+SPECEX      0
+SPECRGB     0 0 0
+REFRIOR     0
+EMITTANCE   0
+TEXTURE     0
+
+// Specular blue
+MATERIAL 4
+TYPE	    MIRROR
+RGB         .65 .65 .98
+SPECEX      0
+SPECRGB     .65 .65 .98
+REFRIOR     0
+EMITTANCE   0
+TEXTURE     0
+
+// Fresnel magenta
+MATERIAL 5
+TYPE	    DIELECTRIC
+RGB         .98 .65 .98
+SPECEX      0
+SPECRGB     .98 .65 .98
+REFRIOR     2.5
+EMITTANCE   0
+TEXTURE     0
+
+// Glossy cyan
+MATERIAL 6
+TYPE	    GLOSSY
+RGB         .65 .98 .98
+SPECEX      7.5
+SPECRGB     .65 .98 .98
+REFRIOR     0
+EMITTANCE   0
+TEXTURE     0
+
+// Diffuse yellow
+MATERIAL 7
+TYPE	    DIFFUSE
+RGB         .98 .98 .65
+SPECEX      0
+SPECRGB     .98 .98 .65
+REFRIOR     0
+EMITTANCE   0
+TEXTURE     0
+
+// Camera
+CAMERA
+RES         800 800
+FOVY        45
+ITERATIONS  10
+DEPTH       8
+FILE        cornell
+LENS        0
+FOCAL       0
+EYE         0.0 5 9.5
+LOOKAT      0 5 0
+UP          0 1 0
+
+// Ceiling light
+OBJECT 0
+cube
+material 0
+TRANS       0 10 0
+ROTAT       0 0 0
+SCALE       20 .3 10
+
+// Floor
+OBJECT 1
+cube
+material 1
+TRANS       0 0 0
+ROTAT       0 0 0
+SCALE       20 .01 10
+
+// Ceiling
+OBJECT 2
+cube
+material 1
+TRANS       0 10 0
+ROTAT       0 0 90
+SCALE       .01 10 10
+
+// Back wall
+OBJECT 3
+cube
+material 1
+TRANS       0 5 -5
+ROTAT       0 90 0
+SCALE       .01 10 20
+
+// Left wall
+OBJECT 4
+cube
+material 2
+TRANS       -10 5 0
+ROTAT       0 0 0
+SCALE       .01 10 10
+
+// Right wall
+OBJECT 5
+cube
+material 3
+TRANS       10 5 0
+ROTAT       0 0 0
+SCALE       .01 10 10
+
+// Mirror Sphere
+OBJECT 6
+sphere
+material 4
+TRANS       -7.5 4 -2
+ROTAT       0 0 0
+SCALE       3 3 3
+
+// Diffuse Sphere
+OBJECT 7
+sphere
+material 7
+TRANS       -2.5 4 -2
+ROTAT       0 0 0
+SCALE       3 3 3
+
+// Fresnel Sphere
+OBJECT 8
+sphere
+material 5
+TRANS       2.5 4 -2
+ROTAT       0 0 0
+SCALE       3 3 3
+
+// Glossy Sphere
+OBJECT 9
+sphere
+material 6
+TRANS       7.5 4 -2
+ROTAT       0 0 0
+SCALE       3 3 3
