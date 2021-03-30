@@ -160,7 +160,7 @@ Blur=10  | Blur=33 | Blur=80 | Blur=185
 :---: | :---: | :---: | :---: 
 <img src="img/denoiser/params/blur_10.png" alt="pos" width=300> | <img src="img/denoiser/params/blur_33.png" alt="nor" width=300> | <img src="img/denoiser/params/blur_80.png" alt="col" width=300> | <img src="img/denoiser/params/blur_185.png" alt="col" width=300>
 
-Increasing the blur size allows more denoiser iterations since the blur size determines the largest expansion width the filter can reach. Applying more iterations result in smoother images, especially for very small number of path tracer iterations (which in this example is only 2). However, increasing the blur size has performance implications. You can check the [Performance Analysis](<a name="performance"/> ) section for more detail.
+Increasing the blur size allows more denoiser iterations since the blur size determines the largest expansion width the filter can reach. Applying more iterations result in smoother images, especially for very small number of path tracer iterations (which in this example is only 2).
 
 **Color Weight**
 
