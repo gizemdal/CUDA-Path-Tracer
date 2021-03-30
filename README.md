@@ -16,7 +16,8 @@ This is a CUDA-based path tracer capable of rendering globally-illuminated image
 #### Table of Contents  
 
 [Material Overview](#overview-material)  
-[Features Overview](#overview-features)   
+[Features Overview](#overview-features)
+[Denoiser](#denoiser)
 [Insights](#insights)   
 [Performance Analysis](#performance)   
 [Bloopers](#bloopers)  
@@ -115,6 +116,102 @@ Although it isn't very visible at larger sample sizes, using stratified samples 
 **Hierarchical Spatial Structure - Octree (In progress)**
 
 I started implementing a hierarchical spatial structure named Octree. The purpose of this data structure is to contain the scene geometry within children nodes (at most 8 children nodes per node) by using 3D volume bounding boxes with the goal of eliminating naive geometry iteration in the ray-scene intersection test, thus improve the rendering performance. Due to time constraints, this feature is not completed yet though it is still in the works.
+
+<a name="denoiser"/> 
+
+## Denoiser ##
+
+This project also includes a pathtracing denoiser that uses geometry buffers (G-buffers) to guide a smoothing filter. The technique is based on the [Edge-Avoiding A-Trous Wavelet Transform for fast Global Illumination Filtering](https://jo.dreggn.org/home/2010_atrous.pdf) paper by Dammertz, Sewtz, Hanika, and Lensch. The example renders below show the effect of this denoiser on a scene with 10 iterations and the following denoiser parameters:
+- **Filter Size: 10**
+- **Blur Size: 64**
+- **Col_W: 38.398**
+- **Nor_W: 0.610**
+- **Pos_W: 3.315**
+
+Original Render | Denoised Render
+:---: | :---:
+<img src="img/denoiser/10_samples_1.png" alt="reg10" width=600> | <img src="img/denoiser/10_denoised_1.png" alt="den10" width=600>
+
+GBuffers include scene geometry information such as per-pixel normals and per-pixel positions, as well as surface color for preserving detail in mapped or procedural textures. The current implementation stores per-pixel metrics only from the first bounce.
+
+Position | Normal | Base Color
+:---: | :---: | :---:
+<img src="img/denoiser/buf0.png" alt="pos" width=300> | <img src="img/denoiser/buf1.png" alt="nor" width=300> | <img src="img/denoiser/buf2.png" alt="col" width=300>
+
+### Denoiser Parameters ###
+
+Denoiser parameters such as filter and blur sizes, number of iterations, color/normal/position weights are adjustable from the provided [Imgui](https://github.com/ocornut/imgui) GUI.
+
+**Blur Size**
+
+The examples below use the following parameters:
+- **Filter Size: 5**
+- **Iterations: 2**
+- **Col_W: 11.789**
+- **Nor_W: 0.610**
+- **Pos_W: 0.407**
+
+Blur=10  | Blur=33 | Blur=80 | Blur=185
+:---: | :---: | :---: | :---: 
+<img src="img/renders/blur_10.png" alt="pos" width=300> | <img src="img/renders/blur_33.png" alt="nor" width=300> | <img src="img/renders/blur_80.png" alt="col" width=300> | <img src="img/renders/blur_185.png" alt="col" width=300>
+
+Increasing the blur size allows more denoiser iterations since the blur size determines the largest expansion width the filter can reach. Applying more iterations result in smoother images, especially for very small number of path tracer iterations (which in this example is only 2). However, increasing the blur size has performance implications. You can check the [Performance Analysis](<a name="performance"/> ) section for more detail.
+
+**Color Weight**
+
+The examples below use the following parameters:
+- **Filter Size: 5**
+- **Iterations: 2**
+- **Blur Size: 80**
+- **Nor_W: 0.610**
+- **Pos_W: 0.407**
+
+Col_W=1.423  | Col_W=4.675 | Col_W=15.244 | Col_W=30.285
+:---: | :---: | :---: | :---: 
+<img src="img/renders/col_1.423.png" alt="pos" width=300> | <img src="img/renders/col_4.675.png" alt="nor" width=300> | <img src="img/renders/col_15.244.png" alt="col" width=300> | <img src="img/renders/col_30.285.png" alt="col" width=300>
+
+The results suggest that increasing the color weight results in smoother denoised results. Lower color weights result in denoised renders with more "fireflies" while larger weights give smoother results. However, it is important to mention that the impact of color weight may depend from implementation to implementation. The current adaptation from the A-Trous approach halves the color weight at each denoise blur iteration in order to smoothen smaller smaller illumination variations, as suggested by the paper.
+
+**Light Size**
+
+The examples below use the following parameters:
+- **Filter Size: 5**
+- **Iterations: 10**
+- **Blur Size: 63**
+- **Col_W: 28.455**
+- **Nor_W: 0.813**
+- **Pos_W: 3.862**
+- **Light Intensity: 1**
+
+Light Width = 3 | Light Width = 5 | Light Width = 7 | Light Width = 10
+:---: | :---: | :---: | :---: 
+<img src="img/renders/3_light.png" alt="pos" width=300> | <img src="img/renders/5_light.png" alt="nor" width=300> | <img src="img/renders/7_light.png" alt="col" width=300> | <img src="img/renders/10_light.png" alt="col" width=300>
+
+While increasing the light size gives us better illuminated renders in these examples, increasing the light intensity may result in less smoother results with a lot of fireflies. The example renders below use the following parameters:
+- **Filter Size: 10**
+- **Iterations: 10**
+- **Blur Size: 64**
+- **Col_W: 38.398**
+- **Nor_W: 0.610**
+- **Pos_W: 3.315**
+
+**Intensity = 1** | **Intensity = 2**
+:---: | :---:
+<img src="img/denoiser/10_denoised_1.png" alt="den10_1" width=600> | <img src="img/denoiser/10_denoised_2.png" alt="den10_2" width=600>
+
+**Filter Size**
+
+The examples below use the following parameters (The blur sizes are adjusted to allow the same number of blur iterations for different filter sizes):
+- **Iterations: 10**
+- **Col_W: 16.667**
+- **Nor_W: 0.610**
+- **Pos_W: 0.813**
+
+Filter = 5, Blur = 80 | Filter = 9, Blur = 80 | Filter = 21, Blur = 81 | Filter = 43, Blur = 103
+:---: | :---: | :---: | :---: 
+<img src="img/renders/filter_5.png" alt="pos" width=300> | <img src="img/renders/filter_9.png" alt="nor" width=300> | <img src="img/renders/filter_21_81.png" alt="col" width=300> | <img src="img/renders/filter_43_103.png" alt="col" width=300>
+
+The results suggest that changing the filter size doesn't seem to have a significant impact on denoiser results.
 
 <a name="insights"/> 
 
