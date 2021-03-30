@@ -15,12 +15,12 @@ This is a CUDA-based path tracer capable of rendering globally-illuminated image
 
 #### Table of Contents  
 
-[Material Overview](#overview-material)  
-[Features Overview](#overview-features)
-[Denoiser](#denoiser)
+[Material Overview](#overview-material)   
+[Features Overview](#overview-features)   
+[Denoiser](#denoiser)   
 [Insights](#insights)   
 [Performance Analysis](#performance)   
-[Bloopers](#bloopers)  
+[Bloopers](#bloopers)
 
 <a name="overview-material"/> 
 
