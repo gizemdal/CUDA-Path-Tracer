@@ -121,16 +121,21 @@ I started implementing a hierarchical spatial structure named Octree. The purpos
 
 ## Denoiser ##
 
-This project also includes a pathtracing denoiser that uses geometry buffers (G-buffers) to guide a smoothing filter. The technique is based on the [Edge-Avoiding A-Trous Wavelet Transform for fast Global Illumination Filtering](https://jo.dreggn.org/home/2010_atrous.pdf) paper by Dammertz, Sewtz, Hanika, and Lensch. The example renders below show the effect of this denoiser on a scene with 10 iterations and the following denoiser parameters:
+This project also includes a pathtracing denoiser that uses geometry buffers (G-buffers) to guide a smoothing filter. The technique is based on the [Edge-Avoiding A-Trous Wavelet Transform for fast Global Illumination Filtering](https://jo.dreggn.org/home/2010_atrous.pdf) paper by Dammertz, Sewtz, Hanika, and Lensch. The example renders below show the effect of this denoiser with the following parameters:
 - **Filter Size: 10**
 - **Blur Size: 64**
 - **Col_W: 38.398**
 - **Nor_W: 0.610**
 - **Pos_W: 3.315**
+- **Light Intensity: 1**
 
-Original Render | Denoised Render
+Original Render (10 iterations) | Denoised Render (10 iterations)
 :---: | :---:
 <img src="img/denoiser/10_samples_1.png" alt="reg10" width=600> | <img src="img/denoiser/10_denoised_1.png" alt="den10" width=600>
+
+Original Render (2 iterations) | Denoised Render (2 iterations)
+:---: | :---:
+<img src="img/denoiser/2_samples_1.png" alt="reg10" width=600> | <img src="img/denoiser/2_denoised_1.png" alt="den10" width=600>
 
 GBuffers include scene geometry information such as per-pixel normals and per-pixel positions, as well as surface color for preserving detail in mapped or procedural textures. The current implementation stores per-pixel metrics only from the first bounce.
 
