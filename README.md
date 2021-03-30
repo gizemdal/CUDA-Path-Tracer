@@ -153,7 +153,7 @@ The examples below use the following parameters:
 
 Blur=10  | Blur=33 | Blur=80 | Blur=185
 :---: | :---: | :---: | :---: 
-<img src="img/renders/blur_10.png" alt="pos" width=300> | <img src="img/renders/blur_33.png" alt="nor" width=300> | <img src="img/renders/blur_80.png" alt="col" width=300> | <img src="img/renders/blur_185.png" alt="col" width=300>
+<img src="img/denoiser/params/blur_10.png" alt="pos" width=300> | <img src="img/denoiser/params/blur_33.png" alt="nor" width=300> | <img src="img/denoiser/params/blur_80.png" alt="col" width=300> | <img src="img/denoiser/params/blur_185.png" alt="col" width=300>
 
 Increasing the blur size allows more denoiser iterations since the blur size determines the largest expansion width the filter can reach. Applying more iterations result in smoother images, especially for very small number of path tracer iterations (which in this example is only 2). However, increasing the blur size has performance implications. You can check the [Performance Analysis](<a name="performance"/> ) section for more detail.
 
@@ -168,7 +168,7 @@ The examples below use the following parameters:
 
 Col_W=1.423  | Col_W=4.675 | Col_W=15.244 | Col_W=30.285
 :---: | :---: | :---: | :---: 
-<img src="img/renders/col_1.423.png" alt="pos" width=300> | <img src="img/renders/col_4.675.png" alt="nor" width=300> | <img src="img/renders/col_15.244.png" alt="col" width=300> | <img src="img/renders/col_30.285.png" alt="col" width=300>
+<img src="img/denoiser/params/col_1.423.png" alt="pos" width=300> | <img src="img/denoiser/params/col_4.675.png" alt="nor" width=300> | <img src="img/denoiser/params/col_15.244.png" alt="col" width=300> | <img src="img/denoiser/params/col_30.285.png" alt="col" width=300>
 
 The results suggest that increasing the color weight results in smoother denoised results. Lower color weights result in denoised renders with more "fireflies" while larger weights give smoother results. However, it is important to mention that the impact of color weight may depend from implementation to implementation. The current adaptation from the A-Trous approach halves the color weight at each denoise blur iteration in order to smoothen smaller smaller illumination variations, as suggested by the paper.
 
@@ -185,7 +185,7 @@ The examples below use the following parameters:
 
 Light Width = 3 | Light Width = 5 | Light Width = 7 | Light Width = 10
 :---: | :---: | :---: | :---: 
-<img src="img/renders/3_light.png" alt="pos" width=300> | <img src="img/renders/5_light.png" alt="nor" width=300> | <img src="img/renders/7_light.png" alt="col" width=300> | <img src="img/renders/10_light.png" alt="col" width=300>
+<img src="img/denoiser/params/3_light.png" alt="pos" width=300> | <img src="img/denoiser/params/5_light.png" alt="nor" width=300> | <img src="img/denoiser/params/7_light.png" alt="col" width=300> | <img src="img/denoiser/params/10_light.png" alt="col" width=300>
 
 While increasing the light size gives us better illuminated renders in these examples, increasing the light intensity may result in less smoother results with a lot of fireflies. The example renders below use the following parameters:
 - **Filter Size: 10**
@@ -209,7 +209,7 @@ The examples below use the following parameters (The blur sizes are adjusted to 
 
 Filter = 5, Blur = 80 | Filter = 9, Blur = 80 | Filter = 21, Blur = 81 | Filter = 43, Blur = 103
 :---: | :---: | :---: | :---: 
-<img src="img/renders/filter_5.png" alt="pos" width=300> | <img src="img/renders/filter_9.png" alt="nor" width=300> | <img src="img/renders/filter_21_81.png" alt="col" width=300> | <img src="img/renders/filter_43_103.png" alt="col" width=300>
+<img src="img/denoiser/params/filter_5.png" alt="pos" width=300> | <img src="img/denoiser/params/filter_9.png" alt="nor" width=300> | <img src="img/denoiser/params/filter_21_81.png" alt="col" width=300> | <img src="img/denoiser/params/filter_43_103.png" alt="col" width=300>
 
 The results suggest that changing the filter size doesn't seem to have a significant impact on denoiser results.
 
